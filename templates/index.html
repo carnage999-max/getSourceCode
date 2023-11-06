@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    .scrollable-container {
+    max-height: 300px; /* Adjust the height to your preference */
+    overflow: auto;   /* This enables scrolling if content exceeds the height */
+}
+#copyButton, .btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+</style>
+
+<div>
+    <h1>Inspect the source code for any website</h1>
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <input type="text" placeholder="enter url..." name="url">
+        <input type="submit" value="Get" class="btn">
+    </form>
+</div>
+
+<div style="visibility: visible;">
+    <pre class="language-html scrollable-container" id="text" height: 50%;">
+        <div id="textToSaveAsPDF">
+            {{ output | linebreaks  }}
+        </div>
+        {% if messages %}
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+        {% endif %}
+    </pre>
+</div>
+    <button id="copyButton" onclick="CopyText()" >Copy to Clipboard</button>
+    <a class="btn" href="{{url}}" target="_blank">View Website</a>
+    <button id="saveAsPDFButton" class="btn">Save as PDF</button>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.css">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+
+    <script>Prism.highlightAll();</script>
+
+    <script>
+        document.getElementById('copyButton').addEventListener('click', function () {
+            const textToCopy = document.getElementById('text').textContent;
+            const inputElement = document.createElement('input');
+            inputElement.value = textToCopy;
+            document.body.appendChild(inputElement);
+            inputElement.select();
+            inputElement.setSelectionRange(0, 99999999);
+            document.execCommand('copy');
+            document.body.removeChild(inputElement);
+    
+            alert('Text copied successfully!');
+        });
+    </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+    document.getElementById('saveAsPDFButton').addEventListener('click', function () {
+        const element = document.getElementById('textToSaveAsPDF');
+        html2pdf()
+            .from(element)
+            .save('source_as_pdf.pdf');
+    });
+</script>
+    
+     
+{% endblock %}
